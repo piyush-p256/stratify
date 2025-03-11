@@ -18,7 +18,7 @@ def assign_tasks(team_members, tasks):
         response = requests.post(
             "http://localhost:11434/api/generate",
             json={
-                "model": "deepseek-r1",
+                "model": "mistral",
                 "prompt": prompt,
                 "stream": False
             }

@@ -17,7 +17,7 @@ def structure_teams(team_members):
     response = requests.post(
         "http://localhost:11434/api/generate",
         json={
-            "model": "deepseek-r1",
+            "model": "mistral",
             "prompt": prompt,
             "stream": False
         }

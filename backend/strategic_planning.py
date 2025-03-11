@@ -18,7 +18,7 @@ def generate_timeline(tasks, start_date):
     # Call Ollama API
     response = requests.post(
         "http://localhost:11434/api/generate",
-        json={"model": "deepseek-r1", "prompt": prompt, "stream": False}
+        json={"model": "mistral", "prompt": prompt, "stream": False}
     )
 
     # Extract response safely
