@@ -18,7 +18,7 @@ def generate_timeline(tasks, start_date):
     # Call Ollama API
     response = requests.post(
         "http://localhost:11434/api/generate",
-        json={"model": "llama2", "prompt": prompt, "stream": False}
+        json={"model": "deepseek-r1", "prompt": prompt, "stream": False}
     )
 
     # Extract response safely
@@ -32,7 +32,7 @@ def generate_timeline(tasks, start_date):
         return None
 
 # Test the function
-if __name__ == "__main__":
+if __name__ == "_main_":
     tasks = [
         {"name": "Build ML Model", "required_skills": ["Python", "Machine Learning"], "deadline": 7},
         {"name": "Design UI", "required_skills": ["JavaScript", "UI/UX"], "deadline": 5}
