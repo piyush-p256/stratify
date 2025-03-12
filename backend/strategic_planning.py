@@ -2,15 +2,19 @@ import requests
 import json
 
 def generate_timeline(tasks, start_date):
-    # Generate a structured prompt for Ollama
+    # Improved structured prompt
     prompt = f"""
     Generate a timeline for the following tasks starting from {start_date}.
     Each task has a deadline (in days). Ensure tasks are scheduled sequentially.
-    Return the result in strict JSON format. Example:
+    Return ONLY valid JSON. No explanations, no extra text. Example format:
+    
+    ```json
     [
         {{"task": "Build ML Model", "start_date": "2025-03-10", "end_date": "2025-03-17"}},
         {{"task": "Design UI", "start_date": "2025-03-17", "end_date": "2025-03-22"}}
     ]
+    ```
+    
     Tasks:
     {json.dumps(tasks, indent=2)}
     """
@@ -24,20 +28,24 @@ def generate_timeline(tasks, start_date):
     # Extract response safely
     try:
         response_data = response.json()
-        timeline_json = response_data.get("response", "").strip()
-        timeline = json.loads(timeline_json)  # Safe parsing instead of eval()
+        raw_response = response_data.get("response", "").strip()
+
+        # Remove any extra text before/after JSON
+        json_start = raw_response.find("[")
+        json_end = raw_response.rfind("]") + 1
+        cleaned_json = raw_response[json_start:json_end]
+
+        timeline = json.loads(cleaned_json)  # Parse JSON safely
         return timeline
-    except (json.JSONDecodeError, KeyError) as e:
-        print(f"Error parsing response: {e}")
+
+    except (json.JSONDecodeError, KeyError, ValueError) as e:
+        print(f"Error parsing response: {e}\nRaw response:\n{raw_response}")
         return None
 
-# Test the function
-if __name__ == "_main_":
-    tasks = [
-        {"name": "Build ML Model", "required_skills": ["Python", "Machine Learning"], "deadline": 7},
-        {"name": "Design UI", "required_skills": ["JavaScript", "UI/UX"], "deadline": 5}
-    ]
-    start_date = "2025-03-10"
-    
-    timeline = generate_timeline(tasks, start_date)
-    print(json.dumps(timeline, indent=2))  # Pretty print output
+# Example test
+tasks = [
+    {"name": "Build ML Model", "deadline": 7},
+    {"name": "Design UI", "deadline": 5}
+]
+
+print(generate_timeline(tasks, "2025-03-10"))
