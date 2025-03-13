@@ -34,13 +34,72 @@ export default function ProjectSetup() {
     setCurrentStep(3)
   }
 
-  const handleTasksSubmit = (tasks) => {
-    setProjectData((prev) => ({ ...prev, tasks }))
-    // Here you would typically send the data to your backend
-    console.log("Submitting project data:", { ...projectData, tasks })
-    navigate("/results")
-  }
+  // const handleTasksSubmit = async (tasks) => {
+  //   const finalData = { ...projectData, tasks }
 
+  //   try {
+  //     const response = await fetch("http://127.0.0.1:5000/generate-plan", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(finalData),
+  //     })
+
+  //     if (!response.ok) {
+  //       throw new Error("Failed to generate project plan")
+  //     }
+
+  //     const result = await response.json()
+  //     localStorage.setItem("projectResults", JSON.stringify(result)) // Store results locally
+  //     navigate("/results")
+  //   } catch (error) {
+  //     console.error("Error:", error)
+  //     alert("Failed to generate project plan. Please try again.")
+  //   }
+  // }
+
+
+  const handleTasksSubmit = async (tasks) => {
+    const finalData = {
+      project_name: projectData.projectName,
+      start_date: projectData.startDate,
+      team_members: projectData.teamMembers, // Rename to match backend
+      tasks: tasks,
+    };
+  
+    console.log("Sending request payload:", JSON.stringify(finalData, null, 2));
+  
+    try {
+      const response = await fetch("http://127.0.0.1:5000/generate-plan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(finalData),
+      });
+  
+      console.log("Server response status:", response.status);
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response from server:", errorText);
+        throw new Error(`Failed to generate project plan: ${errorText}`);
+      }
+  
+      const result = await response.json();
+      console.log("Server response data:", result);
+  
+      localStorage.setItem("projectResults", JSON.stringify(result));
+      navigate("/results");
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to generate project plan. Please try again.");
+    }
+  };
+  
+
+  
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
@@ -97,4 +156,3 @@ export default function ProjectSetup() {
     </div>
   )
 }
-

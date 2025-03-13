@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Import CORS
 from task_allocation import assign_tasks
 from team_structuring import structure_teams
 from strategic_planning import generate_timeline
 
 app = Flask(__name__)
-
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}) 
 @app.route("/generate-plan", methods=["POST"])
 def generate_plan():
     try:
