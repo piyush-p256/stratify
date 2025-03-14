@@ -1,81 +1,109 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Calendar } from "lucide-react"
+import { useState } from "react";
+import { Plus, X } from "lucide-react";
 
-export default function ProjectDetailsForm({ initialData, onSubmit }) {
-  const [projectName, setProjectName] = useState(initialData?.projectName || "")
-  const [startDate, setStartDate] = useState(initialData?.startDate || "")
-  const [errors, setErrors] = useState({})
+export default function ProjectDetailsForm({ onSubmit }) {
+  const [projectName, setProjectName] = useState("");
+  const [goals, setGoals] = useState([]);
+  const [goalInput, setGoalInput] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const handleAddGoal = (e) => {
+    e.preventDefault();
+    if (!goalInput.trim()) return;
+
+    setGoals([...goals, goalInput.trim()]);
+    setGoalInput("");
+  };
+
+  const handleRemoveGoal = (index) => {
+    setGoals(goals.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    // Validation
-    const newErrors = {}
-    if (!projectName.trim()) newErrors.projectName = "Project name is required"
-    if (!startDate) newErrors.startDate = "Start date is required"
+    const newErrors = {};
+    if (!projectName.trim()) newErrors.projectName = "Project name is required";
+    if (goals.length === 0) newErrors.goals = "At least one goal is required";
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
+      setErrors(newErrors);
+      return;
     }
 
-    onSubmit({ projectName, startDate })
-  }
+    onSubmit({ projectName, goals });
+  };
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2">Project Information</h2>
-      <p className="text-gray-600 mb-6">Enter the basic details about your project</p>
-
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Project Name
           </label>
           <input
             type="text"
-            id="projectName"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
             placeholder="Enter project name"
-            className={`w-full px-4 py-2 border rounded-md ${
-              errors.projectName ? "border-red-500" : "border-gray-300"
-            }`}
+            className={`w-full px-4 py-2 border rounded-md ${errors.projectName ? "border-red-500" : "border-gray-300"}`}
           />
           {errors.projectName && <p className="mt-1 text-sm text-red-500">{errors.projectName}</p>}
         </div>
 
         <div>
-          <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
-            Start Date
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Project Goals
           </label>
-          <div className="relative">
+          <div className="flex gap-2">
             <input
-              type="date"
-              id="startDate"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className={`w-full px-4 py-2 border rounded-md pl-10 ${
-                errors.startDate ? "border-red-500" : "border-gray-300"
-              }`}
+              type="text"
+              value={goalInput}
+              onChange={(e) => setGoalInput(e.target.value)}
+              placeholder="Enter a project goal"
+              className="w-full px-4 py-2 border rounded-md border-gray-300"
             />
-            <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+            <button
+              type="button"
+              onClick={handleAddGoal}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
           </div>
-          {errors.startDate && <p className="mt-1 text-sm text-red-500">{errors.startDate}</p>}
+          {errors.goals && <p className="mt-1 text-sm text-red-500">{errors.goals}</p>}
         </div>
 
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="px-6 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-md transition-colors"
-          >
-            Next
-          </button>
-        </div>
+        {goals.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-lg font-medium mb-3">Added Goals ({goals.length})</h3>
+            <div className="space-y-3">
+              {goals.map((goal, index) => (
+                <div key={index} className="flex justify-between items-center p-3 bg-white rounded-lg border">
+                  <span>{goal}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveGoal(index)}
+                    className="text-gray-500 hover:text-red-500"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <button
+          type="submit"
+          className="px-6 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-md transition-colors"
+        >
+          Next
+        </button>
       </form>
     </div>
-  )
+  );
 }
-

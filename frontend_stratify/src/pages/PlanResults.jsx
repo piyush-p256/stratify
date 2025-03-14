@@ -1,31 +1,35 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
-import { Badge } from "../components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table"
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import { Button } from "../components/ui/button";
 
 export default function PlanResults() {
-  const [results, setResults] = useState(null)
+  const [results, setResults] = useState(null);
+  const navigate = useNavigate(); // Allows navigation back
 
   useEffect(() => {
-    const storedResults = localStorage.getItem("projectResults")
+    const storedResults = localStorage.getItem("projectResults");
     if (storedResults) {
-      setResults(JSON.parse(storedResults))
+      setResults(JSON.parse(storedResults));
     }
-  }, [])
+  }, []);
 
   if (!results) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-2xl font-bold mb-4">No Results Available</h1>
-        <Link to="/project-setup" className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-md transition-colors">
+        <Link
+          to="/project-setup"
+          className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-md transition-colors"
+        >
           Create New Plan
         </Link>
       </div>
-    )
+    );
   }
 
   return (
@@ -33,21 +37,25 @@ export default function PlanResults() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Your Project Plan</h1>
-          <Link
-            to="/project-setup"
-            className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-md transition-colors"
-          >
-            Create New Plan
-          </Link>
+          <div className="space-x-4">
+            <Link
+              to="/project-setup"
+              className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-md transition-colors"
+            >
+              Create New Plan
+            </Link>
+          </div>
         </div>
 
         <Tabs defaultValue="tasks" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="tasks">Task Assignments</TabsTrigger>
             <TabsTrigger value="teams">Team Structure</TabsTrigger>
             <TabsTrigger value="timeline">Project Timeline</TabsTrigger>
+            <TabsTrigger value="consensus">AI Consensus</TabsTrigger>
           </TabsList>
 
+          {/* Task Assignments Tab */}
           <TabsContent value="tasks">
             <Card>
               <CardHeader><CardTitle>Task Assignments</CardTitle></CardHeader>
@@ -60,26 +68,29 @@ export default function PlanResults() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {results.task_assignments.map((assignment, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{assignment.task}</TableCell>
-                        <TableCell>{assignment.assigned_to}</TableCell>
-                      </TableRow>
-                    ))}
+                    {Object.entries(results.team_assignments).map(([member, tasks]) =>
+                      tasks.map((task, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{task}</TableCell>
+                          <TableCell>{member}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
             </Card>
           </TabsContent>
 
+          {/* Team Structure Tab */}
           <TabsContent value="teams">
             <Card>
               <CardHeader><CardTitle>Team Structure</CardTitle></CardHeader>
               <CardContent>
                 <ul>
-                  {results.team_assignments.map((team, index) => (
+                  {Object.entries(results.team_assignments).map(([member, tasks], index) => (
                     <li key={index} className="mb-2">
-                      <strong>Team {team.team}:</strong> {team.members.join(", ")}
+                      <strong>{member}:</strong> {tasks.join(", ")}
                     </li>
                   ))}
                 </ul>
@@ -87,6 +98,7 @@ export default function PlanResults() {
             </Card>
           </TabsContent>
 
+          {/* Project Timeline Tab */}
           <TabsContent value="timeline">
             <Card>
               <CardHeader><CardTitle>Project Timeline</CardTitle></CardHeader>
@@ -112,8 +124,21 @@ export default function PlanResults() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* AI Consensus Tab */}
+          <TabsContent value="consensus">
+            <Card>
+              <CardHeader><CardTitle>AI-Generated Consensus</CardTitle></CardHeader>
+              <CardContent>
+                <pre className="whitespace-pre-wrap text-gray-700">
+                  {results.consensus?.[0]?.content || "No AI-generated insights available."}
+                </pre>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
         </Tabs>
       </div>
     </div>
-  )
+  );
 }
