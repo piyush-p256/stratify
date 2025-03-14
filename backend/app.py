@@ -6,6 +6,7 @@ from team_structuring import TeamStructuring
 from resume_parser import ResumeParser
 from multi_agent import MultiAgentConsensus
 import os
+import traceback  # Added for detailed error tracking
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})  # Enable CORS for frontend requests
@@ -58,34 +59,54 @@ def plan_project():
         return jsonify(response)
 
     except Exception as e:
-        print("ERROR:", str(e))  # Debug error messages
+        print("ERROR:", str(e))
+        print(traceback.format_exc())  # Print full traceback for debugging
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/upload-resume', methods=['POST'])
 def upload_resume():
     try:
+        if 'resume' not in request.files:
+            return jsonify({"status": "error", "message": "No resume file provided"}), 400
+            
         file = request.files['resume']
+        if file.filename == '':
+            return jsonify({"status": "error", "message": "No selected file"}), 400
 
-        # ✅ Ensure the 'uploads/' directory exists
+        # Ensure the 'uploads/' directory exists
         upload_folder = "uploads"
         if not os.path.exists(upload_folder):
-            os.makedirs(upload_folder)  # Create folder if it doesn't exist
+            os.makedirs(upload_folder)
 
         file_path = os.path.join(upload_folder, file.filename)
-        file.save(file_path)  # ✅ Now, the file will be saved correctly
+        file.save(file_path)
 
-        print("DEBUG: Saved Resume at ->", file_path)  # Debug file path
-
-        # Parse resume
-        text = resume_parser.extract_text(file_path)
-        skills = resume_parser.extract_skills(text)
-        print("DEBUG: Extracted Skills ->", skills)  # Debug parsed skills
-
-        return jsonify({"status": "success", "skills": skills})
+        print(f"DEBUG: Saved resume at {file_path}")
+        
+        # Call parse_resume directly - this should work based on your test output
+        result = resume_parser.parse_resume(file_path)
+        
+        # Create a response with exactly the same structure as your test script
+        response = {
+            "status": "success",
+            "name": result["name"],
+            "skills": result["skills"],
+        }
+        
+        # Print the response for debugging
+        print("DEBUG: About to return response:", response)
+        
+        return jsonify(response)
 
     except Exception as e:
-        print("ERROR:", str(e))  # Debugging errors
+        import traceback
+        print(f"ERROR: {str(e)}")
+        print(traceback.format_exc())
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "active", "message": "Server is running"}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

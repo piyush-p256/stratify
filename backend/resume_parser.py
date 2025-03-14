@@ -1,10 +1,13 @@
 import nltk
 from PyPDF2 import PdfReader
 import re
+import json
 
 nltk.download('punkt', quiet=True)
 nltk.download('averaged_perceptron_tagger', quiet=True)
 nltk.download('stopwords', quiet=True)
+nltk.download('maxent_ne_chunker', quiet=True)
+nltk.download('words', quiet=True)
 
 class ResumeParser:
     def __init__(self):
@@ -26,7 +29,8 @@ class ResumeParser:
             'databases': set([
                 'MySQL', 'PostgreSQL', 'Oracle', 'SQL Server', 'MongoDB', 'Cassandra',
                 'Redis', 'Elasticsearch', 'DynamoDB', 'Firebase', 'Neo4j', 'SQLite',
-                'MariaDB', 'CouchDB', 'InfluxDB', 'Snowflake', 'BigQuery', 'Redshift'
+                'MariaDB', 'CouchDB', 'InfluxDB', 'Snowflake', 'BigQuery', 'Redshift',
+                'DBMS'  # Added DBMS as requested
             ]),
             'cloud_devops': set([
                 'AWS', 'Azure', 'Google Cloud', 'Docker', 'Kubernetes', 'Jenkins', 'GitLab CI',
@@ -109,6 +113,9 @@ class ResumeParser:
                 variations["reactjs"] = skill
             elif skill == "Object-Oriented Programming":
                 variations["oop"] = skill
+            elif skill == "DBMS":
+                variations["database management system"] = skill
+                variations["database management"] = skill
                 
         return variations
 
@@ -124,6 +131,46 @@ class ResumeParser:
             raise ValueError("No extractable text found in the PDF.")
 
         return text
+    
+    def extract_name(self, text):
+        """Extract the person's name from the resume text"""
+        # Method 1: Try to find the name using Named Entity Recognition
+        tokens = nltk.word_tokenize(text)
+        tagged = nltk.pos_tag(tokens)
+        entities = nltk.chunk.ne_chunk(tagged)
+        
+        # Look for PERSON entities
+        names = []
+        for entity in entities:
+            if hasattr(entity, 'label') and entity.label() == 'PERSON':
+                name = ' '.join([leaf[0] for leaf in entity.leaves()])
+                names.append(name)
+        
+        # If NER found names, use the first one (usually the most prominent)
+        if names:
+            return names[0]
+        
+        # Method 2: Look for patterns typical for names at the beginning of resumes
+        # Most resumes start with the person's name on the first line
+        first_line = text.strip().split('\n')[0].strip()
+        
+        # Check if first line could be a name (no special characters, not too long)
+        if len(first_line) < 40 and all(c.isalnum() or c.isspace() for c in first_line):
+            return first_line
+        
+        # Method 3: Regular expression patterns for common name formats
+        name_patterns = [
+            r'^([A-Z][a-z]+ [A-Z][a-z]+)',  # First Last
+            r'^([A-Z][a-z]+ [A-Z]\. [A-Z][a-z]+)',  # First M. Last
+            r'Name:?\s*([A-Z][a-z]+ [A-Z][a-z]+)'  # Name: First Last
+        ]
+        
+        for pattern in name_patterns:
+            match = re.search(pattern, text)
+            if match:
+                return match.group(1)
+        
+        return "Unknown"  # Default if no name found
 
     def extract_skills(self, text):
         # Tokenize the text and clean it
@@ -190,3 +237,26 @@ class ResumeParser:
                 categorized[category_name] = matching_skills
                 
         return categorized
+        
+    def parse_resume(self, file_path):
+        """Parse the resume and return data in JSON format"""
+        # Extract text from the PDF
+        text = self.extract_text(file_path)
+        
+        # Extract name
+        name = self.extract_name(text)
+        
+        # Extract skills
+        skills = self.extract_skills(text)
+        
+        # Categorize skills
+        categorized_skills = self.categorize_skills(skills)
+        
+        # Prepare the result
+        result = {
+            "name": name,
+            "skills": skills,
+            "categorized_skills": categorized_skills
+        }
+        
+        return result
