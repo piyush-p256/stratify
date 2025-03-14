@@ -5,6 +5,7 @@ from task_allocation import TaskAllocation
 from team_structuring import TeamStructuring
 from resume_parser import ResumeParser
 from multi_agent import MultiAgentConsensus
+import os
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})  # Enable CORS for frontend requests
@@ -64,8 +65,14 @@ def plan_project():
 def upload_resume():
     try:
         file = request.files['resume']
-        file_path = f"uploads/{file.filename}"
-        file.save(file_path)
+
+        # ✅ Ensure the 'uploads/' directory exists
+        upload_folder = "uploads"
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)  # Create folder if it doesn't exist
+
+        file_path = os.path.join(upload_folder, file.filename)
+        file.save(file_path)  # ✅ Now, the file will be saved correctly
 
         print("DEBUG: Saved Resume at ->", file_path)  # Debug file path
 
