@@ -1,44 +1,27 @@
-import requests
-import json
 from datetime import datetime, timedelta
 
-def generate_timeline(tasks, start_date):
-    """
-    Generate a timeline for a given list of tasks starting from a given date.
+class StrategicPlanning:
+    def create_plan(self, data):
+        return {
+            "project_name": data.get("project_name", "Unnamed Project"),
+            "goals": data.get("goals", []),
+            "deadline": data.get("deadline", "2023-12-31")
+        }
 
-    Parameters:
-    - tasks (list of dict): Each task should have a "name" and "deadline" (in days).
-    - start_date (str): The start date in "YYYY-MM-DD" format.
+    def generate_timeline(self, tasks):
+        timeline = []
+        start_date = datetime.strptime("2023-10-01", "%Y-%m-%d")  # Initial start date
 
-    Returns:
-    - list of dict: Each entry contains "task", "start_date", and "end_date".
-    """
+        for task in tasks:
+            duration = task.get("duration", 5)  # Default duration is 5 days if not provided
+            end_date = start_date + timedelta(days=duration - 1)
 
-    # Convert start_date to a datetime object
-    current_date = datetime.strptime(start_date, "%Y-%m-%d")
+            timeline.append({
+                "task": task["task_name"],
+                "start_date": start_date.strftime("%Y-%m-%d"),
+                "end_date": end_date.strftime("%Y-%m-%d")
+            })
 
-    # Construct task schedule sequentially
-    timeline = []
-    for task in tasks:
-        task_name = task["name"]
-        duration = task["deadline"]
+            start_date = end_date + timedelta(days=1)  # Next task starts after the previous one ends
 
-        end_date = current_date + timedelta(days=duration)
-        timeline.append({
-            "task": task_name,
-            "start_date": current_date.strftime("%Y-%m-%d"),
-            "end_date": end_date.strftime("%Y-%m-%d")
-        })
-
-        # Move to the next start date (assuming sequential execution)
-        current_date = end_date
-
-    return timeline
-
-# Example test
-tasks = [
-    {"name": "Build ML Model", "deadline": 7},
-    {"name": "Design UI", "deadline": 5}
-]
-
-print(json.dumps(generate_timeline(tasks, "2025-03-10"), indent=2))
+        return timeline

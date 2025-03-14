@@ -1,52 +1,34 @@
-import requests
-import json
+class TaskAllocation:
+    def allocate_tasks(self, strategic_plan):
+        print("DEBUG: Inside allocate_tasks, strategic_plan ->", strategic_plan)
 
-def assign_tasks(team_members, tasks):
-    task_assignments = []
-    for task in tasks:
-        # Generate a prompt for Ollama
-        prompt = f"""
-        Assign the task '{task['name']}' to the most suitable team member based on their skills and workload.
-        Team Members:
-        {json.dumps(team_members, indent=2)}
-        Task Requirements:
-        {task['required_skills']}
-        Return only the name of the team member. Do not include any explanations or additional text.
-        """
-        
-        # Call Ollama
-        response = requests.post(
-            "http://localhost:11434/api/generate",
-            json={
-                "model": "mistral",
-                "prompt": prompt,
-                "stream": False
-            }
-        )
-        
-        try:
-            response_data = response.json()
-            assigned_to = response_data.get("response", "").strip()
-            task_assignments.append({
-                "task": task["name"],
-                "assigned_to": assigned_to
-            })
-        except (json.JSONDecodeError, KeyError) as e:
-            print(f"Error parsing response: {e}")
-            task_assignments.append({
-                "task": task["name"],
-                "assigned_to": "Error"
-            })
-    
-    return task_assignments
+        tasks = []
+        goals = strategic_plan.get("goals", [])
+        team_members = strategic_plan.get("team_members", [])
 
-# Test the function
-if __name__ == "_main_":
-    team_members = [
-        {"name": "Alice", "skills": ["Python", "Machine Learning"], "workload": 20},
-        {"name": "Bob", "skills": ["JavaScript", "UI/UX"], "workload": 30}
-    ]
-    tasks = [
-        {"name": "Build ML Model", "required_skills": ["Python", "Machine Learning"], "deadline": 7}
-    ]
-    print(assign_tasks(team_members, tasks))
+        task_definitions = {
+            "task assignment": {"task_name": "Automate Task Assignment", "required_skill": "AI"},
+            "optimize team": {"task_name": "Optimize Team Structure", "required_skill": "Agile"},
+            "develop ai": {"task_name": "Develop AI Model", "required_skill": "Python"},
+            "backend": {"task_name": "Build Backend", "required_skill": "Flask"}
+        }
+
+        for goal in goals:
+            for keyword, task_info in task_definitions.items():
+                if keyword in goal.lower():
+                    assigned_member = "Unassigned"
+                    for member in team_members:
+                        if task_info["required_skill"] in member["skills"]:
+                            assigned_member = member["name"]
+                            break
+
+                    # 🚀 Ensure task_name is correctly assigned
+                    task = {
+                        "task_name": task_info["task_name"],  # ✅ Use correct key
+                        "required_skill": task_info["required_skill"],
+                        "assigned_to": assigned_member
+                    }
+                    tasks.append(task)
+
+        print("DEBUG: Allocated Tasks ->", tasks)
+        return tasks
