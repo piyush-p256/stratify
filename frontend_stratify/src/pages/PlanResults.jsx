@@ -2,10 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
-import { Button } from "../components/ui/button";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table";
 
 export default function PlanResults() {
   const [results, setResults] = useState(null);
@@ -48,9 +64,8 @@ export default function PlanResults() {
         </div>
 
         <Tabs defaultValue="tasks" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full md:grid-cols-3 mb-8">
             <TabsTrigger value="tasks">Task Assignments</TabsTrigger>
-            <TabsTrigger value="teams">Team Structure</TabsTrigger>
             <TabsTrigger value="timeline">Project Timeline</TabsTrigger>
             <TabsTrigger value="consensus">AI Consensus</TabsTrigger>
           </TabsList>
@@ -58,7 +73,9 @@ export default function PlanResults() {
           {/* Task Assignments Tab */}
           <TabsContent value="tasks">
             <Card>
-              <CardHeader><CardTitle>Task Assignments</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle>Task Assignments</CardTitle>
+              </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
@@ -68,13 +85,17 @@ export default function PlanResults() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {Object.entries(results.team_assignments).map(([member, tasks]) =>
-                      tasks.map((task, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium">{task}</TableCell>
-                          <TableCell>{member}</TableCell>
-                        </TableRow>
-                      ))
+                    {Object.entries(results.team_assignments || {}).map(
+                      ([member, tasks]) =>
+                        tasks.map((task, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-medium">
+                              {task}
+                            </TableCell>{" "}
+                            {/* Access task directly as a string */}
+                            <TableCell>{member}</TableCell>
+                          </TableRow>
+                        ))
                     )}
                   </TableBody>
                 </Table>
@@ -82,26 +103,12 @@ export default function PlanResults() {
             </Card>
           </TabsContent>
 
-          {/* Team Structure Tab */}
-          <TabsContent value="teams">
-            <Card>
-              <CardHeader><CardTitle>Team Structure</CardTitle></CardHeader>
-              <CardContent>
-                <ul>
-                  {Object.entries(results.team_assignments).map(([member, tasks], index) => (
-                    <li key={index} className="mb-2">
-                      <strong>{member}:</strong> {tasks.join(", ")}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           {/* Project Timeline Tab */}
           <TabsContent value="timeline">
             <Card>
-              <CardHeader><CardTitle>Project Timeline</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle>Project Timeline</CardTitle>
+              </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
@@ -112,9 +119,11 @@ export default function PlanResults() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {results.timeline.map((item, index) => (
+                    {results.timeline?.map((item, index) => (
                       <TableRow key={index}>
-                        <TableCell className="font-medium">{item.task}</TableCell>
+                        <TableCell className="font-medium">
+                          {item.task}
+                        </TableCell>
                         <TableCell>{item.start_date}</TableCell>
                         <TableCell>{item.end_date}</TableCell>
                       </TableRow>
@@ -128,15 +137,17 @@ export default function PlanResults() {
           {/* AI Consensus Tab */}
           <TabsContent value="consensus">
             <Card>
-              <CardHeader><CardTitle>AI-Generated Consensus</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle>AI-Generated Consensus</CardTitle>
+              </CardHeader>
               <CardContent>
                 <pre className="whitespace-pre-wrap text-gray-700">
-                  {results.consensus?.[0]?.content || "No AI-generated insights available."}
+                  {results.consensus?.[0]?.content ||
+                    "No AI-generated insights available."}
                 </pre>
               </CardContent>
             </Card>
           </TabsContent>
-
         </Tabs>
       </div>
     </div>

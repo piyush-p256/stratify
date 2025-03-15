@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import ProjectDetailsForm from "../components/ProjectDetailsForm";
 import TeamMembersForm from "../components/TeamMembersForm";
 import TasksForm from "../components/TasksForm";
@@ -35,35 +34,43 @@ export default function ProjectSetup() {
   };
 
   const handleTasksSubmit = async (tasks) => {
+    // Convert tasks array to an object (task_definitions) as expected by the backend
+    const taskDefinitions = {};
+    tasks.forEach(task => {
+      taskDefinitions[task.task_name] = {
+        task_name: task.task_name,
+        required_skill: task.required_skill,
+        duration: task.duration
+      };
+    });
+  
     const finalData = {
       project_name: projectData.projectName,
-      goals: ["Automate task assignment", "Optimize team structure"], // Modify if needed
+      goals: tasks.map(task => task.task_name),  // Task names as goals
       team_members: projectData.teamMembers,
-      tasks: tasks,
+      task_definitions: taskDefinitions,  // Key change here
     };
-
+  
     console.log("Sending request payload:", JSON.stringify(finalData, null, 2));
-
+  
     try {
-      const response = await fetch("https://93ec-2405-201-5803-b9eb-863a-8e98-53f9-d55e.ngrok-free.app/plan", {
+      const response = await fetch("https://c370-2405-201-5803-b9eb-863a-8e98-53f9-d55e.ngrok-free.app/plan", {  // Update URL if using a different endpoint
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalData),
       });
-
+  
       console.log("Server response status:", response.status);
-
+  
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error response from server:", errorText);
         throw new Error(`Failed to generate project plan: ${errorText}`);
       }
-
+  
       const result = await response.json();
       console.log("Server response data:", result);
-
+  
       localStorage.setItem("projectResults", JSON.stringify(result));
       navigate("/results");
     } catch (error) {
@@ -84,7 +91,7 @@ export default function ProjectSetup() {
               className={`flex-1 text-center py-4 px-4 ${
                 currentStep === step.id ? "border-b-2 border-teal-500 text-teal-600 bg-teal-50" : "text-gray-500"
               }`}
-              disabled={true}
+              disabled
             >
               {step.name}
             </button>
