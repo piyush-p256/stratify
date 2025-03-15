@@ -24,6 +24,11 @@ def plan_project():
         data = request.json
         print("DEBUG: Received Data ->", data)  # Debugging input request
 
+        # Ensure task definitions are passed in request JSON
+        task_definitions = data.get("task_definitions", {})
+        if not task_definitions:
+            return jsonify({"status": "error", "message": "Task definitions are required"}), 400
+
         # Step 1: Strategic Planning
         strategic_plan = strategic_planning.create_plan(data)
         strategic_plan["team_members"] = data.get("team_members", [])  # Ensure team members are included
@@ -37,15 +42,15 @@ def plan_project():
         )
         print("DEBUG: Multi-Agent Consensus ->", consensus)
 
-        # Step 3: Task Allocation
-        tasks = task_allocation.allocate_tasks(strategic_plan)
+        # Step 3: Task Allocation (Pass task definitions from request)
+        tasks = task_allocation.allocate_tasks(strategic_plan, task_definitions)
         print("DEBUG: Allocated Tasks ->", tasks)
 
-        # Step 4: Team Structuring (Ensuring correct inputs)
+        # Step 4: Team Structuring
         teams = team_structuring.create_teams(tasks, data.get("team_members", []))
         print("DEBUG: Generated Teams ->", teams)
 
-        # Step 5: Generate Timeline (Using Correct Key: `task_name`)
+        # Step 5: Generate Timeline
         timeline = strategic_planning.generate_timeline(tasks)
         print("DEBUG: Generated Timeline ->", timeline)
 
@@ -60,7 +65,7 @@ def plan_project():
 
     except Exception as e:
         print("ERROR:", str(e))
-        print(traceback.format_exc())  # Print full traceback for debugging
+        print(traceback.format_exc())
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/upload-resume', methods=['POST'])
