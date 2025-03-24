@@ -236,8 +236,7 @@ We welcome contributions from the community! Here's how you can help:
 - Include comments for complex logic
 - Ensure all tests pass before submitting PR
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
 ## 📞 Support
 For bug reports and feature requests, please open an issue on GitHub.
