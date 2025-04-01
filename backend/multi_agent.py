@@ -51,6 +51,8 @@ class MultiAgentConsensus:
         1. Task allocation based on team members' skills.
         2. A timeline for task completion.
         3. Team structuring recommendations.
+
+        Give a brief summary of the project and its goals, and then provide the detailed plan in bulleted format for easy reading.
         """
         print(f"Prompt: {prompt}")
         response = self.mistral_client.generate(prompt)
