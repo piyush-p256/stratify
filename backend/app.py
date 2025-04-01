@@ -26,6 +26,7 @@ def plan_project():
 
         # Ensure task definitions are passed in request JSON
         task_definitions = data.get("task_definitions", {})
+        print(f"DEBUG: Type of task_definitions: {type(task_definitions)}")  # Debugging the type
         if not task_definitions:
             return jsonify({"status": "error", "message": "Task definitions are required"}), 400
 
@@ -67,6 +68,7 @@ def plan_project():
         print("ERROR:", str(e))
         print(traceback.format_exc())
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @app.route('/upload-resume', methods=['POST'])
 def upload_resume():
