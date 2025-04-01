@@ -54,7 +54,7 @@ export default function ProjectSetup() {
     console.log("Sending request payload:", JSON.stringify(finalData, null, 2));
   
     try {
-      const response = await fetch("https://c370-2405-201-5803-b9eb-863a-8e98-53f9-d55e.ngrok-free.app/plan", {  // Update URL if using a different endpoint
+      const response = await fetch("https://1ee8-2a00-79e1-abc-e00-5c5e-3fa2-2765-fe64.ngrok-free.app/plan", {  // Update URL if using a different endpoint
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalData),
