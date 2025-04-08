@@ -37,6 +37,18 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        animation: {
+          'progress': 'progress 2.5s ease-in-out infinite',
+          'spin': 'spin 1.5s linear infinite',
+          'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        },
+        keyframes: {
+          progress: {
+            '0%': { width: '0%' },
+            '50%': { width: '70%' },
+            '100%': { width: '100%' },
+          }
+        }
       },
       borderRadius: {
         lg: "var(--radius)",

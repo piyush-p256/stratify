@@ -39,7 +39,8 @@ def plan_project():
         consensus = multi_agent.get_consensus(
             project_name=data.get("project_name", "Unnamed Project"),
             goals=data.get("goals", []),
-            team_members=data.get("team_members", [])
+            team_members=data.get("team_members", []),
+            tasks=data.get("tasks", {}),
         )
         print("DEBUG: Multi-Agent Consensus ->", consensus)
 

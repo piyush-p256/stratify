@@ -43,7 +43,7 @@ export default function TeamMembersForm({ initialTeamMembers = [], onSubmit }) {
 
     setUploading(true);
     try {
-      const response = await fetch("https://1ee8-2a00-79e1-abc-e00-5c5e-3fa2-2765-fe64.ngrok-free.app/upload-resume", {  // Change URL if using another endpoint
+      const response = await fetch("http://127.0.0.1:5000/upload-resume", {  // Change URL if using another endpoint
         method: "POST",
         body: formData,
       });
@@ -167,7 +167,7 @@ export default function TeamMembersForm({ initialTeamMembers = [], onSubmit }) {
       <button
         type="button"
         onClick={handleSubmit}
-        className="px-6 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-md transition-colors"
+        className="px-6 py-2 bg-purple-600 hover:bg-purple-400 text-white font-medium rounded-md transition-colors"
       >
         Next
       </button>

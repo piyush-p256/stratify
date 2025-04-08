@@ -131,7 +131,7 @@ export default function TasksForm({ initialTasks = [], onSubmit }) {
       <button
         type="button"
         onClick={handleSubmit}
-        className="px-6 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-md transition-colors"
+        className="px-6 py-2 bg-teal-500 hover:bg-purple-600 text-white font-medium rounded-md transition-colors"
       >
         Generate Plan
       </button>

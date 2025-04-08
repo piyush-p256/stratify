@@ -99,7 +99,7 @@ export default function ProjectDetailsForm({ onSubmit }) {
 
         <button
           type="submit"
-          className="px-6 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-md transition-colors"
+          className="px-6 py-2 bg-purple-600 hover:bg-purple-400 text-white font-medium rounded-md transition-colors"
         >
           Next
         </button>

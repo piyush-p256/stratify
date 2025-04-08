@@ -39,13 +39,19 @@ class MultiAgentConsensus:
             model="mistral-large-latest"
         )
 
-    def get_consensus(self, project_name, goals, team_members):
+    def get_consensus(self, project_name, goals, team_members, tasks):
+        tasks_formatted = ', '.join([
+            f"{task['task_name']} (Required Skill: {task['required_skill']}, Duration: {task['duration']})"
+            for task in tasks
+        ])
         prompt = f"""
         You are a project management AI. Generate a detailed plan for the following project:
 
         Project Name: {project_name}
         Goals: {', '.join(goals)}
         Team Members: {', '.join([f"{member['name']} (Skills: {', '.join(member['skills'])})" for member in team_members])}
+        Tasks: {tasks_formatted}
+
 
         The plan should include:
         1. Task allocation based on team members' skills.
@@ -62,7 +68,11 @@ class MultiAgentConsensus:
 if __name__ == "__main__":
     consensus = MultiAgentConsensus()
     project_name = "Example Project"
-    goals = ["Goal 1", "Goal 2"]
-    team_members = [{"name": "Alice", "skills": ["Python", "Machine Learning"]}, {"name": "Bob", "skills": ["JavaScript", "Frontend"]}]
-    response = consensus.get_consensus(project_name, goals, team_members)
+    goals = ["Backend creation", "Frontend creation", "Deployment"]
+    team_members = [{"name": "Alice", "skills": ["Python", "Machine Learning"]}, {"name": "Bob", "skills": ["JavaScript", "Frontend"]}, {"name": "cob", "skills": ["JavaScript", "Frontend"]}]
+    tasks = [
+        {"task_name": "Develop Backend", "required_skill": "Python", "duration": "6 weeks"},
+        {"task_name": "Create Frontend UI", "required_skill": "JavaScript", "duration": "3 weeks"}
+    ]
+    response = consensus.get_consensus(project_name, goals, team_members, tasks)
     print(response)
