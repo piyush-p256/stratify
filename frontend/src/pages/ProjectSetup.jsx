@@ -55,7 +55,7 @@ export default function ProjectSetup() {
     };
   
     try {
-      const response = await fetch("http://127.0.0.1:5000/plan", {
+      const response = await fetch("https://b30a-115-111-246-26.ngrok-free.app/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalData),

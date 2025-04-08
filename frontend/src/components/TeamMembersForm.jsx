@@ -43,7 +43,7 @@ export default function TeamMembersForm({ initialTeamMembers = [], onSubmit }) {
 
     setUploading(true);
     try {
-      const response = await fetch("http://127.0.0.1:5000/upload-resume", {  // Change URL if using another endpoint
+      const response = await fetch("https://b30a-115-111-246-26.ngrok-free.app/upload-resume", {  // Change URL if using another endpoint
         method: "POST",
         body: formData,
       });
